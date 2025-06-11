@@ -57,6 +57,7 @@ export default function AdminDashboard() {
     description: "",
     tech: "",
     imageUrl: "",
+    featured: false,
   })
   const [newSkill, setNewSkill] = useState({
     name: "",
@@ -169,6 +170,7 @@ export default function AdminDashboard() {
         description: "",
         tech: "",
         imageUrl: "",
+        featured: false,
       })
     } catch (error) {
       console.error("Error adding project:", error)
@@ -492,6 +494,18 @@ export default function AdminDashboard() {
                       required
                     />
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="featured"
+                      checked={newProject.featured}
+                      onChange={(e) => setNewProject({ ...newProject, featured: e.target.checked })}
+                      className="rounded border-purple-700 bg-purple-900/50 text-purple-600 focus:ring-purple-500"
+                    />
+                    <label htmlFor="featured" className="text-sm font-medium">
+                      Featured Project (show on homepage)
+                    </label>
+                  </div>
                   <Button type="submit" className="bg-purple-600 hover:bg-purple-700 rounded-xl">
                     <Plus className="mr-2 h-4 w-4" /> Add Project
                   </Button>
@@ -563,6 +577,18 @@ export default function AdminDashboard() {
                             onChange={(e) => setEditingProject({ ...editingProject, imageUrl: e.target.value })}
                             className="bg-purple-900/50 border-purple-700 rounded-xl"
                           />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id="edit-featured"
+                            checked={editingProject.featured}
+                            onChange={(e) => setEditingProject({ ...editingProject, featured: e.target.checked })}
+                            className="rounded border-purple-700 bg-purple-900/50 text-purple-600 focus:ring-purple-500"
+                          />
+                          <label htmlFor="edit-featured" className="text-sm font-medium">
+                            Featured Project (show on homepage)
+                          </label>
                         </div>
                         <div className="flex gap-2">
                           <Button type="submit" className="bg-green-600 hover:bg-green-700 rounded-xl">

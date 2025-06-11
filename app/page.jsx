@@ -79,7 +79,7 @@ export default function Home() {
 
         if (projectsRes.ok) {
           const projectsData = await projectsRes.json()
-          setProjects(projectsData.filter((p) => p.featured).slice(0, 4))
+          setProjects(projectsData) // Show all projects
         }
 
         if (skillsRes.ok) {
@@ -189,7 +189,7 @@ export default function Home() {
           <div className="absolute -inset-1 rounded-full bg-purple-500 blur-xl opacity-30 animate-pulse"></div>
           <div className="relative">
             <Image
-              src="/placeholder.svg?height=400&width=400"
+              src={"son.jpg" || "/placeholder.svg?height=400&width=400"}
               alt="Nhanh Kimson"
               width={400}
               height={400}

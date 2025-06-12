@@ -4,7 +4,7 @@ import { motion } from '@motionone/react'
 export function HeroSectionTextAnimation() {
   return (
     <>
-      <section className="py-20 px-4">
+      {/* <section className="py-20 px-4"> */}
         <motion.h1
           className="text-4xl md:text-6xl font-bold mb-4"
           initial={{ opacity: 0, y: 50 }}
@@ -34,7 +34,7 @@ export function HeroSectionTextAnimation() {
           development with experience in Java Spring, PHP Laravel, C#, Python
           Flask, and more.
         </motion.p>
-      </section>
+      {/* </section> */}
     </>
   );
 }

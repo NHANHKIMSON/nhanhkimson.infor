@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion } from "framer-motion"
+import { HeroSectionTextAnimation } from "@/components/hero-text-animation";
 
 // Animation variants
 const fadeIn = {
@@ -204,15 +205,7 @@ export default function Home() {
           viewport={{ once: true }}
           variants={fadeIn}
         >
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            Hello! I am <span className="text-purple-400">Nhanh Kimson</span>
-          </h1>
-          <h2 className="text-2xl md:text-3xl mb-6">A Software Engineer & Developer</h2>
-          <p className="text-gray-300 mb-8">
-            Currently a student at Beltei International University and Korea Software HRD Center (13th batch). I
-            specialize in full-stack development with experience in Java Spring, PHP Laravel, C#, Python Flask, and
-            more.
-          </p>
+          <HeroSectionTextAnimation/>
           <div className="flex gap-4">
             <Button className="bg-purple-600 hover:bg-purple-700 rounded-2xl" size="lg">
               <a href="#contact" className="flex items-center gap-2">

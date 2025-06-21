@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { HeroSectionTextAnimation } from "@/components/hero-text-animation";
+import {DownloadCv} from "../components/download-cv";
 
 // Animation variants
 const fadeIn = {
@@ -162,7 +163,11 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, staggerChildren: 0.1, delayChildren: 0.2 }}
+          transition={{
+            duration: 0.5,
+            staggerChildren: 0.1,
+            delayChildren: 0.2,
+          }}
           className="hidden md:flex gap-6"
         >
           {[
@@ -176,7 +181,9 @@ export default function Home() {
               key={link.href}
               href={link.href}
               className={`hover:text-purple-400 transition-colors ${
-                activeSection === link.href.substring(1) ? "text-purple-400 font-bold" : ""
+                activeSection === link.href.substring(1)
+                  ? "text-purple-400 font-bold"
+                  : ""
               }`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -190,8 +197,8 @@ export default function Home() {
           animate={{ opacity: 1, scale: 1 }}
           className="md:hidden text-white"
           onClick={() => {
-            const mobileMenu = document.getElementById("mobile-menu")
-            mobileMenu.classList.toggle("hidden")
+            const mobileMenu = document.getElementById("mobile-menu");
+            mobileMenu.classList.toggle("hidden");
           }}
         >
           <svg
@@ -227,18 +234,21 @@ export default function Home() {
               key={`mobile-${link.href}`}
               href={link.href}
               className={`hover:text-purple-400 transition-colors ${
-                activeSection === link.href.substring(1) ? "text-purple-400 font-bold" : ""
+                activeSection === link.href.substring(1)
+                  ? "text-purple-400 font-bold"
+                  : ""
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                document.getElementById("mobile-menu").classList.add("hidden")
+                document.getElementById("mobile-menu").classList.add("hidden");
               }}
             >
               {link.label}
             </motion.a>
           ))}
         </motion.div>
+        <DownloadCv/>
       </nav>
 
       <main className="min-h-screen px-4 bg-gradient-to-b from-purple-950 to-black text-white">

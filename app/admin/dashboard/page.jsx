@@ -57,6 +57,8 @@ export default function AdminDashboard() {
     description: "",
     tech: "",
     imageUrl: "",
+    githubUrl: "",
+    liveUrl: "",
     featured: false,
   })
   const [newSkill, setNewSkill] = useState({
@@ -170,6 +172,8 @@ export default function AdminDashboard() {
         description: "",
         tech: "",
         imageUrl: "",
+        githubUrl: "",
+        liveUrl: "",
         featured: false,
       })
     } catch (error) {
@@ -494,6 +498,32 @@ export default function AdminDashboard() {
                       required
                     />
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="githubUrl" className="text-sm font-medium">
+                        GitHub URL
+                      </label>
+                      <Input
+                        id="githubUrl"
+                        value={newProject.githubUrl}
+                        onChange={(e) => setNewProject({ ...newProject, githubUrl: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="https://github.com/username/project"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="liveUrl" className="text-sm font-medium">
+                        Live Demo URL
+                      </label>
+                      <Input
+                        id="liveUrl"
+                        value={newProject.liveUrl}
+                        onChange={(e) => setNewProject({ ...newProject, liveUrl: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="https://your-project.vercel.app"
+                      />
+                    </div>
+                  </div>
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -577,6 +607,32 @@ export default function AdminDashboard() {
                             onChange={(e) => setEditingProject({ ...editingProject, imageUrl: e.target.value })}
                             className="bg-purple-900/50 border-purple-700 rounded-xl"
                           />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label htmlFor="edit-githubUrl" className="text-sm font-medium">
+                              GitHub URL
+                            </label>
+                            <Input
+                              id="edit-githubUrl"
+                              value={editingProject.githubUrl || ""}
+                              onChange={(e) => setEditingProject({ ...editingProject, githubUrl: e.target.value })}
+                              className="bg-purple-900/50 border-purple-700 rounded-xl"
+                              placeholder="https://github.com/username/project"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label htmlFor="edit-liveUrl" className="text-sm font-medium">
+                              Live Demo URL
+                            </label>
+                            <Input
+                              id="edit-liveUrl"
+                              value={editingProject.liveUrl || ""}
+                              onChange={(e) => setEditingProject({ ...editingProject, liveUrl: e.target.value })}
+                              className="bg-purple-900/50 border-purple-700 rounded-xl"
+                              placeholder="https://your-project.vercel.app"
+                            />
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <input

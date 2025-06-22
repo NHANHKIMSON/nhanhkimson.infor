@@ -7,10 +7,10 @@ export function HeroSectionTextAnimation() {
     const professions = [
         'Software Engineer',
         'Full-Stack Developer',
-        'Java Specialist',
+        'Java Developer',
         'Python Developer',
-        'Laravel Expert',
-        'C# Programmer'
+        'Laravel Developer',
+        'C# Developer'
     ];
 
     useEffect(() => {
@@ -64,7 +64,7 @@ export function HeroSectionTextAnimation() {
                     Currently a student at Beltei International University and Korea
                     Software HRD Center (13th batch). I specialize in full-stack
                     development with experience in Java Spring, PHP Laravel, C#, Python
-                    Flask, and more.
+                    Flask, ReactJs, NextJs, Bootstrap, and more.
                 </motion.p>
             </motion.div>
         </div>

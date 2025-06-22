@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
-import { LayoutDashboard, FolderKanban, Code, Mail, Settings, Plus, Trash2, Edit, Save, X } from "lucide-react"
+import { LayoutDashboard, FolderKanban, Code, Mail, Settings, Plus, Trash2, Edit, Save, X, Award } from "lucide-react"
 import AdminLayout from "@/components/admin-layout"
 
 // Animation variants
@@ -44,14 +44,17 @@ const itemVariant = {
 export default function AdminDashboard() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
   const [stats, setStats] = useState({
     projects: 0,
     skills: 0,
     messages: 0,
+    certificates: 0,
   })
   const [projects, setProjects] = useState([])
   const [skills, setSkills] = useState([])
   const [messages, setMessages] = useState([])
+  const [certificates, setCertificates] = useState([])
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
@@ -67,6 +70,18 @@ export default function AdminDashboard() {
   })
   const [editingProject, setEditingProject] = useState(null)
   const [editingSkill, setEditingSkill] = useState(null)
+  const [newCertificate, setNewCertificate] = useState({
+    title: "",
+    issuer: "",
+    description: "",
+    imageUrl: "",
+    credentialUrl: "",
+    issueDate: "",
+    expiryDate: "",
+    skills: "",
+    featured: false,
+  })
+  const [editingCertificate, setEditingCertificate] = useState(null)
 
   useEffect(() => {
     // Check authentication
@@ -79,18 +94,35 @@ export default function AdminDashboard() {
     // Fetch dashboard data
     const fetchData = async () => {
       try {
-        // Fetch dashboard stats
+        setError("")
+
+        // Test basic API connectivity first
+        console.log("Testing API connectivity...")
+
+        // Fetch dashboard stats with better error handling
         const statsRes = await fetch("/api/dashboard/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
 
+        console.log("Stats response status:", statsRes.status)
+
         if (!statsRes.ok) {
-          throw new Error("Failed to fetch dashboard stats")
+          const errorData = await statsRes.json().catch(() => ({ message: "Unknown error" }))
+          console.error("Stats API error:", errorData)
+
+          if (statsRes.status === 401) {
+            localStorage.removeItem("adminToken")
+            router.push("/admin")
+            return
+          }
+
+          throw new Error(`Failed to fetch dashboard stats: ${errorData.message}`)
         }
 
         const statsData = await statsRes.json()
+        console.log("Stats data received:", statsData)
         setStats(statsData.stats)
 
         // Fetch projects
@@ -103,6 +135,8 @@ export default function AdminDashboard() {
         if (projectsRes.ok) {
           const projectsData = await projectsRes.json()
           setProjects(projectsData)
+        } else {
+          console.warn("Failed to fetch projects")
         }
 
         // Fetch skills
@@ -115,6 +149,8 @@ export default function AdminDashboard() {
         if (skillsRes.ok) {
           const skillsData = await skillsRes.json()
           setSkills(skillsData)
+        } else {
+          console.warn("Failed to fetch skills")
         }
 
         // Fetch messages
@@ -127,9 +163,26 @@ export default function AdminDashboard() {
         if (messagesRes.ok) {
           const messagesData = await messagesRes.json()
           setMessages(messagesData)
+        } else {
+          console.warn("Failed to fetch messages")
+        }
+
+        // Fetch certificates
+        const certificatesRes = await fetch("/api/certificates", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (certificatesRes.ok) {
+          const certificatesData = await certificatesRes.json()
+          setCertificates(certificatesData)
+        } else {
+          console.warn("Failed to fetch certificates")
         }
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
+        setError(error.message)
       } finally {
         setIsLoading(false)
       }
@@ -332,6 +385,101 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleAddCertificate = async (e) => {
+    e.preventDefault()
+
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch("/api/certificates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...newCertificate,
+          skills: newCertificate.skills.split(",").map((item) => item.trim()),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to add certificate")
+      }
+
+      const addedCertificate = await response.json()
+      setCertificates([...certificates, addedCertificate])
+      setNewCertificate({
+        title: "",
+        issuer: "",
+        description: "",
+        imageUrl: "",
+        credentialUrl: "",
+        issueDate: "",
+        expiryDate: "",
+        skills: "",
+        featured: false,
+      })
+    } catch (error) {
+      console.error("Error adding certificate:", error)
+    }
+  }
+
+  const handleDeleteCertificate = async (id) => {
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`/api/certificates/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete certificate")
+      }
+
+      setCertificates(certificates.filter((certificate) => certificate.id !== id))
+    } catch (error) {
+      console.error("Error deleting certificate:", error)
+    }
+  }
+
+  const handleUpdateCertificate = async (e) => {
+    e.preventDefault()
+
+    try {
+      const token = localStorage.getItem("adminToken")
+      const response = await fetch(`/api/certificates/${editingCertificate.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...editingCertificate,
+          skills:
+            typeof editingCertificate.skills === "string"
+              ? editingCertificate.skills.split(",").map((item) => item.trim())
+              : editingCertificate.skills,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update certificate")
+      }
+
+      const updatedCertificate = await response.json()
+      setCertificates(
+        certificates.map((certificate) =>
+          certificate.id === updatedCertificate.id ? updatedCertificate : certificate,
+        ),
+      )
+      setEditingCertificate(null)
+    } catch (error) {
+      console.error("Error updating certificate:", error)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-purple-950 to-black flex items-center justify-center">
@@ -340,10 +488,24 @@ export default function AdminDashboard() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-950 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-400 text-xl mb-4">Dashboard Error</div>
+          <div className="text-white mb-4">{error}</div>
+          <Button onClick={() => window.location.reload()} className="bg-purple-600 hover:bg-purple-700">
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <AdminLayout onLogout={handleLogout}>
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-5 mb-8 bg-purple-900/50 rounded-xl">
+        <TabsList className="grid grid-cols-6 mb-8 bg-purple-900/50 rounded-xl">
           <TabsTrigger value="overview" className="data-[state=active]:bg-purple-700 rounded-xl">
             <LayoutDashboard className="mr-2 h-4 w-4" /> Overview
           </TabsTrigger>
@@ -352,6 +514,9 @@ export default function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="skills" className="data-[state=active]:bg-purple-700 rounded-xl">
             <Code className="mr-2 h-4 w-4" /> Skills
+          </TabsTrigger>
+          <TabsTrigger value="certificates" className="data-[state=active]:bg-purple-700 rounded-xl">
+            <Award className="mr-2 h-4 w-4" /> Certificates
           </TabsTrigger>
           <TabsTrigger value="messages" className="data-[state=active]:bg-purple-700 rounded-xl">
             <Mail className="mr-2 h-4 w-4" /> Messages
@@ -367,7 +532,7 @@ export default function AdminDashboard() {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
           >
             <motion.div variants={itemVariant}>
               <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
@@ -386,6 +551,16 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">{stats.skills}</div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div variants={itemVariant}>
+              <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium">Certificates</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{stats.certificates}</div>
                 </CardContent>
               </Card>
             </motion.div>
@@ -843,6 +1018,195 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 )}
+              </motion.div>
+            ))}
+          </motion.div>
+        </TabsContent>
+
+        {/* Certificates Tab */}
+        <TabsContent value="certificates">
+          <motion.div variants={fadeIn} initial="hidden" animate="visible">
+            <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl mb-8">
+              <CardHeader>
+                <CardTitle>Add New Certificate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleAddCertificate} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="cert-title" className="text-sm font-medium">
+                        Certificate Title
+                      </label>
+                      <Input
+                        id="cert-title"
+                        value={newCertificate.title}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, title: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="AWS Certified Developer"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="cert-issuer" className="text-sm font-medium">
+                        Issuer
+                      </label>
+                      <Input
+                        id="cert-issuer"
+                        value={newCertificate.issuer}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, issuer: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="Amazon Web Services"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="cert-description" className="text-sm font-medium">
+                      Description
+                    </label>
+                    <Textarea
+                      id="cert-description"
+                      value={newCertificate.description}
+                      onChange={(e) => setNewCertificate({ ...newCertificate, description: e.target.value })}
+                      className="bg-purple-900/50 border-purple-700 rounded-xl"
+                      placeholder="Certificate description"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="cert-imageUrl" className="text-sm font-medium">
+                        Certificate Image URL
+                      </label>
+                      <Input
+                        id="cert-imageUrl"
+                        value={newCertificate.imageUrl}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, imageUrl: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="https://example.com/certificate.png"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="cert-credentialUrl" className="text-sm font-medium">
+                        Credential URL
+                      </label>
+                      <Input
+                        id="cert-credentialUrl"
+                        value={newCertificate.credentialUrl}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, credentialUrl: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        placeholder="https://verify.certificate.com"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="cert-issueDate" className="text-sm font-medium">
+                        Issue Date
+                      </label>
+                      <Input
+                        id="cert-issueDate"
+                        type="date"
+                        value={newCertificate.issueDate}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, issueDate: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="cert-expiryDate" className="text-sm font-medium">
+                        Expiry Date (Optional)
+                      </label>
+                      <Input
+                        id="cert-expiryDate"
+                        type="date"
+                        value={newCertificate.expiryDate}
+                        onChange={(e) => setNewCertificate({ ...newCertificate, expiryDate: e.target.value })}
+                        className="bg-purple-900/50 border-purple-700 rounded-xl"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="cert-skills" className="text-sm font-medium">
+                      Related Skills (comma separated)
+                    </label>
+                    <Input
+                      id="cert-skills"
+                      value={newCertificate.skills}
+                      onChange={(e) => setNewCertificate({ ...newCertificate, skills: e.target.value })}
+                      className="bg-purple-900/50 border-purple-700 rounded-xl"
+                      placeholder="AWS, Cloud Computing, DevOps"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="cert-featured"
+                      checked={newCertificate.featured}
+                      onChange={(e) => setNewCertificate({ ...newCertificate, featured: e.target.checked })}
+                      className="rounded border-purple-700 bg-purple-900/50 text-purple-600 focus:ring-purple-500"
+                    />
+                    <label htmlFor="cert-featured" className="text-sm font-medium">
+                      Featured Certificate
+                    </label>
+                  </div>
+                  <Button type="submit" className="bg-purple-600 hover:bg-purple-700 rounded-xl">
+                    <Plus className="mr-2 h-4 w-4" /> Add Certificate
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {certificates.map((certificate, index) => (
+              <motion.div key={certificate.id || index} variants={itemVariant}>
+                <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-medium">{certificate.title}</CardTitle>
+                    <p className="text-sm text-purple-400">{certificate.issuer}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-300 mb-4">{certificate.description}</p>
+                    <div className="text-sm text-gray-400 mb-4">
+                      <p>Issued: {new Date(certificate.issueDate).toLocaleDateString()}</p>
+                      {certificate.expiryDate && (
+                        <p>Expires: {new Date(certificate.expiryDate).toLocaleDateString()}</p>
+                      )}
+                    </div>
+                    {certificate.skills && certificate.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {certificate.skills.map((skill, skillIndex) => (
+                          <Badge key={skillIndex} className="bg-purple-700 rounded-xl">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-600 text-blue-400 hover:bg-blue-900/20 rounded-xl"
+                        onClick={() => setEditingCertificate(certificate)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-600 text-red-400 hover:bg-red-900/20 rounded-xl"
+                        onClick={() => handleDeleteCertificate(certificate.id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </motion.div>

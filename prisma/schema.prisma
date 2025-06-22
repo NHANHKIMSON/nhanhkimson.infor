@@ -48,6 +48,23 @@ model Skill {
   @@map("skills")
 }
 
+model Certificate {
+  id          String   @id @default(cuid())
+  title       String
+  issuer      String   // Organization that issued the certificate
+  description String?
+  imageUrl    String?  // Certificate image/badge
+  credentialUrl String? // Link to verify the certificate
+  issueDate   DateTime
+  expiryDate  DateTime? // Some certificates don't expire
+  skills      String[] // Related skills/technologies
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("certificates")
+}
+
 model Message {
   id        String   @id @default(cuid())
   name      String

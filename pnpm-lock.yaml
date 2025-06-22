@@ -189,6 +189,9 @@ importers:
       '@types/react-dom':
         specifier: ^18
         version: 18.3.7(@types/react@18.3.23)
+      components:
+        specifier: link:@/components
+        version: link:@/components
       postcss:
         specifier: ^8.5
         version: 8.5.4

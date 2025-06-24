@@ -5,8 +5,6 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({ subsets: ["latin"] })
-
-
 export default async function RootLayout({
   children,
 }: {

@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { HeroSectionTextAnimation } from "@/components/hero-text-animation";
-import {NavigationBar} from "../components/navigation-bar.jsx";
+import { NavigationBar } from "../components/navigation-bar.jsx";
 
 const metadata = {
   title: "Nhanh Kimson - Software Engineer & Developer",
@@ -25,7 +25,7 @@ const metadata = {
     "C#",
     "Python",
     "Next.js",
-    "Portfolio"
+    "Portfolio",
   ],
   generator: "v0.dev",
   authors: [{ name: "Nhanh Kimson", url: "https://nhanhkimson.dev" }],
@@ -50,7 +50,7 @@ const metadata = {
   verification: {
     google: "BBbJJxk-bjlI0Yx1OSGvTMdVDHDiO5xm5H3qgcm3QDk",
   },
-}
+};
 
 // Animation variants
 const fadeIn = {
@@ -93,7 +93,6 @@ export default function Home() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,7 +171,7 @@ export default function Home() {
   return (
     <>
       {/* Navigation */}
-      <NavigationBar/>
+      <NavigationBar />
 
       <main className="min-h-screen px-4 bg-gradient-to-b from-purple-950 to-black text-white">
         {/* Hero Section */}
@@ -187,15 +186,17 @@ export default function Home() {
             viewport={{ once: true }}
             variants={fadeIn}
           >
-            <div className="absolute -inset-1 rounded-full bg-purple-500 blur-xl opacity-30 animate-pulse"></div>
-            <div className="relative">
-              <Image
-                src={"son.jpg" || "/placeholder.svg?height=400&width=400"}
-                alt="Nhanh Kimson"
-                width={400}
-                height={400}
-                className="rounded-full border-4 border-purple-500"
-              />
+            <div className="relative w-full max-w-[400px] mx-auto">
+              <div className="absolute -inset-3 rounded-full bg-purple-500 blur-xl opacity-30 animate-pulse z-0" />
+              <div className="relative z-10">
+                <Image
+                  src={"son.jpg" || "/placeholder.svg?height=400&width=400"}
+                  alt="Nhanh Kimson"
+                  width={400}
+                  height={400}
+                  className="rounded-full border-4 border-purple-500 w-full h-auto"
+                />
+              </div>
             </div>
           </motion.div>
           <motion.div

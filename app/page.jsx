@@ -31,12 +31,12 @@ const metadata = {
   ],
   generator: "v0.dev",
   authors: [{ name: "Nhanh Kimson", url: "https://nhanhkimson.dev" }],
-  metadataBase: new URL("https://nhanhkimson-infor.vercel.app"),
+  metadataBase: new URL("https://nhanhkimson.vercel.app"),
   openGraph: {
     title: "Nhanh Kimson - Software Engineer & Developer",
     description:
       "Portfolio of Nhanh Kimson, showcasing software engineering projects using Java, Laravel, C#, Python, and more.",
-    url: "https://nhanhkimson-infor.vercel.app",
+    url: "https://nhanhkimson.vercel.app",
     siteName: "Nhanh Kimson Portfolio",
     images: [
       {
@@ -239,13 +239,13 @@ export default function Home() {
         <meta name="twitter:description" content={metadata.openGraph.description} />
         <meta name="twitter:image" content={metadata.openGraph.images[0].url} />
         <meta name="google-site-verification" content={metadata.verification.google} />
-        <link rel="canonical" href="https://nhanhkimson-infor.vercel.app" />
+        <link rel="canonical" href="https://nhanhkimson.vercel.app" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Person",
             "name": "Nhanh Kimson",
-            "url": "https://nhanhkimson-infor.vercel.app",
+            "url": "https://nhanhkimson.vercel.app",
             "image": "https://nhanhkimson.dev/preview.jpg",
             "sameAs": [
               "https://github.com/NHANHKIMSON",

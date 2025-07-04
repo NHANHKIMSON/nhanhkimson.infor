@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Github, Youtube, Mail, ExternalLink } from "lucide-react";
+import Head from "next/head";
+import { Github, Youtube, Mail, ExternalLink, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { HeroSectionTextAnimation } from "@/components/hero-text-animation";
 import { NavigationBar } from "../components/navigation-bar.jsx";
+import Fuse from "fuse.js";
 
 const metadata = {
   title: "Nhanh Kimson - Software Engineer & Developer",
@@ -38,7 +40,7 @@ const metadata = {
     siteName: "Nhanh Kimson Portfolio",
     images: [
       {
-        url: "https://nhanhkimson.dev/preview.jpg", // replace with your actual preview image
+        url: "https://nhanhkimson.dev/preview.jpg",
         width: 1200,
         height: 630,
         alt: "Nhanh Kimson Portfolio Preview",
@@ -93,6 +95,9 @@ export default function Home() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,7 +109,7 @@ export default function Home() {
 
         if (projectsRes.ok) {
           const projectsData = await projectsRes.json();
-          setProjects(projectsData); // Show all projects
+          setProjects(projectsData);
         }
 
         if (skillsRes.ok) {
@@ -120,6 +125,50 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // Initialize search engine
+  useEffect(() => {
+    if (projects.length > 0 && skills.length > 0) {
+      const searchIndex = new Fuse(
+        [
+          ...projects.map(p => ({...p, type: 'project'})),
+          ...skills.map(s => ({...s, type: 'skill'})),
+          {
+            id: 'about',
+            type: 'content',
+            title: 'About Me',
+            content: `I'm a passionate software engineer and developer with a strong foundation in multiple programming languages and frameworks. My journey in programming started with a curiosity about how applications work, and it has evolved into a deep passion for creating efficient, user-friendly software solutions. I enjoy tackling complex problems and turning ideas into functional applications. My goal is to create software that makes a positive impact on people's lives.`
+          }
+        ],
+        {
+          keys: [
+            'title',
+            'description',
+            'tech',
+            'name',
+            'content'
+          ],
+          includeScore: true,
+          threshold: 0.3,
+          minMatchCharLength: 2
+        }
+      );
+      
+      window.searchIndex = searchIndex;
+    }
+  }, [projects, skills]);
+
+  // Search handler
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+    
+    const results = window.searchIndex.search(query);
+    setSearchResults(results.map(r => r.item));
+  };
 
   const handleContactSubmit = async (e) => {
     e.preventDefault();
@@ -170,8 +219,108 @@ export default function Home() {
 
   return (
     <>
+      {/* SEO Optimization */}
+      <Head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords.join(", ")} />
+        <meta name="author" content="Nhanh Kimson" />
+        <meta property="og:title" content={metadata.openGraph.title} />
+        <meta property="og:description" content={metadata.openGraph.description} />
+        <meta property="og:url" content={metadata.openGraph.url} />
+        <meta property="og:site_name" content={metadata.openGraph.siteName} />
+        <meta property="og:image" content={metadata.openGraph.images[0].url} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="en_US" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metadata.openGraph.title} />
+        <meta name="twitter:description" content={metadata.openGraph.description} />
+        <meta name="twitter:image" content={metadata.openGraph.images[0].url} />
+        <meta name="google-site-verification" content={metadata.verification.google} />
+        <link rel="canonical" href="https://nhanhkimson-infor.vercel.app" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Person",
+            "name": "Nhanh Kimson",
+            "url": "https://nhanhkimson-infor.vercel.app",
+            "image": "https://nhanhkimson.dev/preview.jpg",
+            "sameAs": [
+              "https://github.com/NHANHKIMSON",
+              "https://www.youtube.com/@sonprogramming"
+            ],
+            "jobTitle": "Software Engineer",
+            "worksFor": {
+              "@type": "Organization",
+              "name": "Beltei International University"
+            },
+            "alumniOf": [
+              "Beltei International University",
+              "Korea Software HRD Center"
+            ],
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Phnom Penh",
+              "addressRegion": "Cambodia"
+            }
+          })}
+        </script>
+      </Head>
+
       {/* Navigation */}
-      <NavigationBar />
+      <NavigationBar 
+        onSearchClick={() => setIsSearchOpen(true)} 
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+      />
+      
+      {/* Search Modal */}
+      {isSearchOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/90 backdrop-blur z-50 p-4"
+        >
+          <div className="max-w-2xl mx-auto relative">
+            <div className="flex items-center gap-2 mb-6">
+              <Search className="text-gray-400" />
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search projects, skills, content..."
+                className="w-full p-4 bg-gray-900 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => {
+                  setIsSearchOpen(false);
+                  setSearchQuery('');
+                }}
+              >
+                <X className="text-gray-400" />
+              </Button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto">
+              {searchResults.length > 0 ? (
+                <div className="space-y-4">
+                  {searchResults.map((result) => (
+                    <SearchResultItem key={`${result.type}-${result.id}`} result={result} />
+                  ))}
+                </div>
+              ) : searchQuery ? (
+                <p className="text-center text-gray-500 py-8">
+                  No results found for "{searchQuery}"
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       <main className="min-h-screen px-4 bg-gradient-to-b from-purple-950 to-black text-white">
         {/* Hero Section */}
@@ -190,10 +339,11 @@ export default function Home() {
               <div className="absolute -inset-3 rounded-full bg-purple-500 blur-xl opacity-30 animate-pulse z-0" />
               <div className="relative z-10">
                 <Image
-                  src={"son.jpg" || "/placeholder.svg?height=400&width=400"}
+                  src={"son.jpg"}
                   alt="Nhanh Kimson"
                   width={400}
                   height={400}
+                  priority
                   className="rounded-full border-4 border-purple-500 w-full h-auto"
                 />
               </div>
@@ -211,6 +361,7 @@ export default function Home() {
               <Button
                 className="bg-purple-600 hover:bg-purple-700 rounded-2xl"
                 size="lg"
+                aria-label="Contact me"
               >
                 <a href="#contact" className="flex items-center gap-2">
                   Contact Me <Mail size={16} />
@@ -220,6 +371,7 @@ export default function Home() {
                 variant="outline"
                 className="border-purple-600 text-purple-400 hover:bg-purple-900/20 rounded-2xl"
                 size="lg"
+                aria-label="View projects"
               >
                 <a href="#projects" className="flex items-center gap-2">
                   View Projects <ExternalLink size={16} />
@@ -231,15 +383,15 @@ export default function Home() {
 
         {/* About Section */}
         <section id="about" className="container mx-auto py-20">
-          <motion.h2
+          <motion.h1
             className="text-3xl font-bold mb-10 text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            About Me
-          </motion.h2>
+            About Nhanh Kimson
+          </motion.h1>
           <motion.div
             className="bg-purple-950/30 p-8 rounded-2xl border border-purple-800/50 backdrop-blur-sm shadow-lg shadow-purple-900/20"
             initial="hidden"
@@ -270,16 +422,17 @@ export default function Home() {
               </TabsList>
               <TabsContent value="background" className="space-y-4">
                 <p className="text-lg">
-                  I'm a passionate software engineer and developer with a strong
-                  foundation in multiple programming languages and frameworks.
-                  My journey in programming started with a curiosity about how
-                  applications work, and it has evolved into a deep passion for
-                  creating efficient, user-friendly software solutions.
+                  I'm Nhanh Kimson, a passionate software engineer specializing in 
+                  <strong> Java Spring development</strong>, 
+                  <strong> PHP Laravel applications</strong>, and 
+                  <strong> full-stack solutions</strong>. With experience in 
+                  enterprise-level software development, I create efficient, 
+                  scalable systems that solve real-world problems.
                 </p>
                 <p className="text-lg">
-                  I enjoy tackling complex problems and turning ideas into
-                  functional applications. My goal is to create software that
-                  makes a positive impact on people's lives.
+                  My journey in programming started with a curiosity about how applications work, 
+                  and it has evolved into a deep passion for creating efficient, 
+                  user-friendly software solutions.
                 </p>
               </TabsContent>
               <TabsContent value="education" className="space-y-4">
@@ -323,7 +476,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Tech Stack
+            Technical Skills
           </motion.h2>
           {isLoading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -498,7 +651,7 @@ export default function Home() {
             <motion.a
               href="https://github.com/NHANHKIMSON"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer me"
               className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 p-4 rounded-2xl transition-colors"
               variants={itemVariant}
               whileHover={{ scale: 1.05 }}
@@ -510,7 +663,7 @@ export default function Home() {
             <motion.a
               href="https://www.youtube.com/@sonprogramming"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer me"
               className="flex items-center gap-2 bg-red-700 hover:bg-red-600 p-4 rounded-2xl transition-colors"
               variants={itemVariant}
               whileHover={{ scale: 1.05 }}
@@ -521,6 +674,7 @@ export default function Home() {
             </motion.a>
             <motion.a
               href="mailto:contact@example.com"
+              rel="me"
               className="flex items-center gap-2 bg-blue-700 hover:bg-blue-600 p-4 rounded-2xl transition-colors"
               variants={itemVariant}
               whileHover={{ scale: 1.05 }}
@@ -645,7 +799,7 @@ export default function Home() {
               <motion.a
                 href="https://github.com/NHANHKIMSON"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer me"
                 whileHover={{ scale: 1.2, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -654,7 +808,7 @@ export default function Home() {
               <motion.a
                 href="https://www.youtube.com/@sonprogramming"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer me"
                 whileHover={{ scale: 1.2, rotate: -5 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -662,6 +816,7 @@ export default function Home() {
               </motion.a>
               <motion.a
                 href="mailto:contact@example.com"
+                rel="me"
                 whileHover={{ scale: 1.2, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -672,5 +827,65 @@ export default function Home() {
         </footer>
       </main>
     </>
+  );
+}
+
+// Search Result Component
+function SearchResultItem({ result }) {
+  const getLink = () => {
+    switch(result.type) {
+      case 'project': return `#projects`;
+      case 'skill': return '#skills';
+      case 'content': return '#about';
+      default: return '#';
+    }
+  };
+
+  return (
+    <Card className="bg-gray-800 border-gray-700 hover:border-purple-500 transition-colors">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Badge variant="secondary" className="bg-purple-900 text-purple-300">
+                {result.type.toUpperCase()}
+              </Badge>
+              <h3 className="font-bold text-lg">
+                {result.title || result.name}
+              </h3>
+            </div>
+            
+            {result.description && (
+              <p className="text-gray-400 line-clamp-2">
+                {result.description}
+              </p>
+            )}
+            
+            {result.tech && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {result.tech.map((tech, i) => (
+                  <Badge key={i} className="bg-gray-700 text-gray-300">
+                    {tech}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <Button asChild size="sm" variant="outline">
+            <a 
+              href={getLink()} 
+              className="text-purple-400"
+              onClick={(e) => {
+                e.preventDefault();
+                document.querySelector(getLink()).scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              View
+            </a>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

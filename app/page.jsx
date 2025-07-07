@@ -19,6 +19,7 @@ const metadata = {
     "Personal portfolio of Nhanh Kimson, a software engineer and developer specializing in Java Spring, PHP Laravel, C#, Python Flask, and more.",
   keywords: [
     "Nhanh Kimson",
+    "Kimson",
     "Software Engineer",
     "Full Stack Developer",
     "Java",
@@ -29,8 +30,7 @@ const metadata = {
     "Next.js",
     "Portfolio",
   ],
-  generator: "v0.dev",
-  authors: [{ name: "Nhanh Kimson", url: "https://nhanhkimson.dev" }],
+  authors: [{ name: "Nhanh Kimson", url: "https://nhanhkimson.vercel.app" }],
   metadataBase: new URL("https://nhanhkimson.vercel.app"),
   openGraph: {
     title: "Nhanh Kimson - Software Engineer & Developer",
@@ -40,7 +40,7 @@ const metadata = {
     siteName: "Nhanh Kimson Portfolio",
     images: [
       {
-        url: "https://nhanhkimson.dev/preview.jpg",
+        url: "https://avatars.githubusercontent.com/u/177823561?v=4",
         width: 1200,
         height: 630,
         alt: "Nhanh Kimson Portfolio Preview",
@@ -239,6 +239,7 @@ export default function Home() {
         <meta name="twitter:description" content={metadata.openGraph.description} />
         <meta name="twitter:image" content={metadata.openGraph.images[0].url} />
         <meta name="google-site-verification" content={metadata.verification.google} />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="canonical" href="https://nhanhkimson.vercel.app" />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -246,7 +247,7 @@ export default function Home() {
             "@type": "Person",
             "name": "Nhanh Kimson",
             "url": "https://nhanhkimson.vercel.app",
-            "image": "https://nhanhkimson.dev/preview.jpg",
+            "image": "https://avatars.githubusercontent.com/u/177823561?v=4",
             "sameAs": [
               "https://github.com/NHANHKIMSON",
               "https://www.youtube.com/@sonprogramming"

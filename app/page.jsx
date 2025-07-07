@@ -439,7 +439,7 @@ export default function Home() {
                 <p className="text-lg">
                   <strong>Beltei International University</strong>
                   <br />
-                  Currently in Year II, Semester II
+                  Currently in Year IIV, Semester I
                   <br />
                   Computer Science Major
                 </p>

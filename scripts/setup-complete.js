@@ -26,12 +26,8 @@ async function setupComplete() {
     })
     console.log("✅ Admin user created:", adminUser.username)
 
-    // 3. Clear existing data and create sample projects
+    // 3. Create sample projects
     console.log("📁 Creating sample projects...")
-
-    // Clear existing projects first
-    await prisma.project.deleteMany({})
-
     const projects = [
       {
         title: "E-Commerce Platform",
@@ -39,8 +35,8 @@ async function setupComplete() {
           "A full-stack e-commerce platform with user authentication, product management, and payment integration built with modern technologies.",
         tech: ["React", "Node.js", "MongoDB", "Stripe", "Express"],
         featured: true,
-        githubUrl: "https://github.com/NHANHKIMSON/School-System-Python",
-        liveUrl: "https://cambodiaschoolsystem.onrender.com/?added=True",
+        githubUrl: "https://github.com/NHANHKIMSON/ecommerce-platform",
+        liveUrl: "https://ecommerce-demo.vercel.app",
       },
       {
         title: "Task Management App",
@@ -70,20 +66,17 @@ async function setupComplete() {
       },
     ]
 
-    // Create projects one by one
     for (const project of projects) {
-      await prisma.project.create({
-        data: project,
+      await prisma.project.upsert({
+        where: { title: project.title },
+        update: {},
+        create: project,
       })
     }
     console.log(`✅ Created ${projects.length} sample projects`)
 
-    // 4. Clear existing skills and create new ones
+    // 4. Create skills
     console.log("🛠️ Creating skills...")
-
-    // Clear existing skills first
-    await prisma.skill.deleteMany({})
-
     const skills = [
       { name: "Java Spring", color: "bg-green-600", category: "Backend", level: 4 },
       { name: "PHP Laravel", color: "bg-red-600", category: "Backend", level: 4 },
@@ -107,20 +100,17 @@ async function setupComplete() {
       { name: "AWS", color: "bg-orange-600", category: "Cloud", level: 2 },
     ]
 
-    // Create skills one by one
     for (const skill of skills) {
-      await prisma.skill.create({
-        data: skill,
+      await prisma.skill.upsert({
+        where: { name: skill.name },
+        update: {},
+        create: skill,
       })
     }
     console.log(`✅ Created ${skills.length} skills`)
 
-    // 5. Clear existing messages and create sample messages
+    // 5. Create sample messages
     console.log("💬 Creating sample messages...")
-
-    // Clear existing messages first
-    await prisma.message.deleteMany({})
-
     const messages = [
       {
         name: "John Doe",
@@ -148,7 +138,6 @@ async function setupComplete() {
       },
     ]
 
-    // Create messages one by one
     for (const message of messages) {
       await prisma.message.create({
         data: message,
@@ -156,54 +145,7 @@ async function setupComplete() {
     }
     console.log(`✅ Created ${messages.length} sample messages`)
 
-    // 6. Clear existing certificates and create sample certificates
-    console.log("🏆 Creating sample certificates...")
-
-    // Clear existing certificates first
-    await prisma.certificate.deleteMany({})
-
-    const certificates = [
-      {
-        title: "AWS Certified Developer - Associate",
-        issuer: "Amazon Web Services",
-        description: "Validates expertise in developing and maintaining applications on the AWS platform.",
-        issueDate: new Date("2023-06-15"),
-        expiryDate: new Date("2026-06-15"),
-        skills: ["AWS", "Cloud Computing", "Lambda", "DynamoDB", "S3"],
-        featured: true,
-        credentialUrl: "https://aws.amazon.com/verification",
-      },
-      {
-        title: "Oracle Certified Professional, Java SE Developer",
-        issuer: "Oracle Corporation",
-        description: "Demonstrates proficiency in Java SE development and programming fundamentals.",
-        issueDate: new Date("2023-03-20"),
-        expiryDate: new Date("2026-03-20"),
-        skills: ["Java", "Object-Oriented Programming", "Spring Framework"],
-        featured: true,
-        credentialUrl: "https://education.oracle.com/certification",
-      },
-      {
-        title: "Microsoft Certified: Azure Fundamentals",
-        issuer: "Microsoft",
-        description:
-          "Validates foundational knowledge of cloud services and how those services are provided with Microsoft Azure.",
-        issueDate: new Date("2023-01-10"),
-        skills: ["Azure", "Cloud Computing", "Microsoft Technologies"],
-        featured: false,
-        credentialUrl: "https://docs.microsoft.com/en-us/learn/certifications/",
-      },
-    ]
-
-    // Create certificates one by one
-    for (const certificate of certificates) {
-      await prisma.certificate.create({
-        data: certificate,
-      })
-    }
-    console.log(`✅ Created ${certificates.length} sample certificates`)
-
-    // 7. Create site settings
+    // 6. Create site settings
     console.log("⚙️ Creating site settings...")
     await prisma.siteSettings.upsert({
       where: { id: "default" },
@@ -222,12 +164,11 @@ async function setupComplete() {
     })
     console.log("✅ Site settings created")
 
-    // 8. Final statistics
+    // 7. Final statistics
     const stats = await Promise.all([
       prisma.project.count(),
       prisma.skill.count(),
       prisma.message.count(),
-      prisma.certificate.count(),
       prisma.user.count(),
     ])
 
@@ -236,8 +177,7 @@ async function setupComplete() {
     console.log(`   - Projects: ${stats[0]}`)
     console.log(`   - Skills: ${stats[1]}`)
     console.log(`   - Messages: ${stats[2]}`)
-    console.log(`   - Certificates: ${stats[3]}`)
-    console.log(`   - Users: ${stats[4]}`)
+    console.log(`   - Users: ${stats[3]}`)
     console.log("\n🔐 Admin Login Credentials:")
     console.log("   Username: admin")
     console.log("   Password: admin123")

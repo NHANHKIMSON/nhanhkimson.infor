@@ -319,24 +319,22 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({
           ...editingProject,
-          tech: Array.isArray(editingProject.tech)
-            ? editingProject.tech
-            : editingProject.tech.split(",").map((item) => item.trim()),
+          tech:
+            typeof editingProject.tech === "string"
+              ? editingProject.tech.split(",").map((item) => item.trim())
+              : editingProject.tech,
         }),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to update project")
+        throw new Error("Failed to update project")
       }
 
       const updatedProject = await response.json()
       setProjects(projects.map((project) => (project.id === updatedProject.id ? updatedProject : project)))
       setEditingProject(null)
-      console.log("✅ Project updated successfully")
     } catch (error) {
       console.error("Error updating project:", error)
-      alert(`Error updating project: ${error.message}`)
     }
   }
 
@@ -355,17 +353,14 @@ export default function AdminDashboard() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to update skill")
+        throw new Error("Failed to update skill")
       }
 
       const updatedSkill = await response.json()
       setSkills(skills.map((skill) => (skill.id === updatedSkill.id ? updatedSkill : skill)))
       setEditingSkill(null)
-      console.log("✅ Skill updated successfully")
     } catch (error) {
       console.error("Error updating skill:", error)
-      alert(`Error updating skill: ${error.message}`)
     }
   }
 
@@ -462,15 +457,15 @@ export default function AdminDashboard() {
         },
         body: JSON.stringify({
           ...editingCertificate,
-          skills: Array.isArray(editingCertificate.skills)
-            ? editingCertificate.skills
-            : editingCertificate.skills.split(",").map((item) => item.trim()),
+          skills:
+            typeof editingCertificate.skills === "string"
+              ? editingCertificate.skills.split(",").map((item) => item.trim())
+              : editingCertificate.skills,
         }),
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to update certificate")
+        throw new Error("Failed to update certificate")
       }
 
       const updatedCertificate = await response.json()
@@ -480,10 +475,8 @@ export default function AdminDashboard() {
         ),
       )
       setEditingCertificate(null)
-      console.log("✅ Certificate updated successfully")
     } catch (error) {
       console.error("Error updating certificate:", error)
-      alert(`Error updating certificate: ${error.message}`)
     }
   }
 
@@ -1172,208 +1165,48 @@ export default function AdminDashboard() {
           >
             {certificates.map((certificate, index) => (
               <motion.div key={certificate.id || index} variants={itemVariant}>
-                {editingCertificate && editingCertificate.id === certificate.id ? (
-                  <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium">Edit Certificate</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handleUpdateCertificate} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-title" className="text-sm font-medium">
-                              Certificate Title
-                            </label>
-                            <Input
-                              id="edit-cert-title"
-                              value={editingCertificate.title}
-                              onChange={(e) => setEditingCertificate({ ...editingCertificate, title: e.target.value })}
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-issuer" className="text-sm font-medium">
-                              Issuer
-                            </label>
-                            <Input
-                              id="edit-cert-issuer"
-                              value={editingCertificate.issuer}
-                              onChange={(e) => setEditingCertificate({ ...editingCertificate, issuer: e.target.value })}
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor="edit-cert-description" className="text-sm font-medium">
-                            Description
-                          </label>
-                          <Textarea
-                            id="edit-cert-description"
-                            value={editingCertificate.description || ""}
-                            onChange={(e) =>
-                              setEditingCertificate({ ...editingCertificate, description: e.target.value })
-                            }
-                            className="bg-purple-900/50 border-purple-700 rounded-xl"
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-imageUrl" className="text-sm font-medium">
-                              Certificate Image URL
-                            </label>
-                            <Input
-                              id="edit-cert-imageUrl"
-                              value={editingCertificate.imageUrl || ""}
-                              onChange={(e) =>
-                                setEditingCertificate({ ...editingCertificate, imageUrl: e.target.value })
-                              }
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-credentialUrl" className="text-sm font-medium">
-                              Credential URL
-                            </label>
-                            <Input
-                              id="edit-cert-credentialUrl"
-                              value={editingCertificate.credentialUrl || ""}
-                              onChange={(e) =>
-                                setEditingCertificate({ ...editingCertificate, credentialUrl: e.target.value })
-                              }
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-issueDate" className="text-sm font-medium">
-                              Issue Date
-                            </label>
-                            <Input
-                              id="edit-cert-issueDate"
-                              type="date"
-                              value={
-                                editingCertificate.issueDate
-                                  ? new Date(editingCertificate.issueDate).toISOString().split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                setEditingCertificate({ ...editingCertificate, issueDate: e.target.value })
-                              }
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label htmlFor="edit-cert-expiryDate" className="text-sm font-medium">
-                              Expiry Date (Optional)
-                            </label>
-                            <Input
-                              id="edit-cert-expiryDate"
-                              type="date"
-                              value={
-                                editingCertificate.expiryDate
-                                  ? new Date(editingCertificate.expiryDate).toISOString().split("T")[0]
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                setEditingCertificate({ ...editingCertificate, expiryDate: e.target.value })
-                              }
-                              className="bg-purple-900/50 border-purple-700 rounded-xl"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label htmlFor="edit-cert-skills" className="text-sm font-medium">
-                            Related Skills (comma separated)
-                          </label>
-                          <Input
-                            id="edit-cert-skills"
-                            value={
-                              Array.isArray(editingCertificate.skills)
-                                ? editingCertificate.skills.join(", ")
-                                : editingCertificate.skills || ""
-                            }
-                            onChange={(e) => setEditingCertificate({ ...editingCertificate, skills: e.target.value })}
-                            className="bg-purple-900/50 border-purple-700 rounded-xl"
-                          />
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="edit-cert-featured"
-                            checked={editingCertificate.featured}
-                            onChange={(e) =>
-                              setEditingCertificate({ ...editingCertificate, featured: e.target.checked })
-                            }
-                            className="rounded border-purple-700 bg-purple-900/50 text-purple-600 focus:ring-purple-500"
-                          />
-                          <label htmlFor="edit-cert-featured" className="text-sm font-medium">
-                            Featured Certificate
-                          </label>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button type="submit" className="bg-green-600 hover:bg-green-700 rounded-xl">
-                            <Save className="mr-2 h-4 w-4" /> Save
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="border-gray-600 hover:bg-gray-800 rounded-xl"
-                            onClick={() => setEditingCertificate(null)}
-                          >
-                            <X className="mr-2 h-4 w-4" /> Cancel
-                          </Button>
-                        </div>
-                      </form>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-medium">{certificate.title}</CardTitle>
-                      <p className="text-sm text-purple-400">{certificate.issuer}</p>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-300 mb-4">{certificate.description}</p>
-                      <div className="text-sm text-gray-400 mb-4">
-                        <p>Issued: {new Date(certificate.issueDate).toLocaleDateString()}</p>
-                        {certificate.expiryDate && (
-                          <p>Expires: {new Date(certificate.expiryDate).toLocaleDateString()}</p>
-                        )}
-                      </div>
-                      {certificate.skills && certificate.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {certificate.skills.map((skill, skillIndex) => (
-                            <Badge key={skillIndex} className="bg-purple-700 rounded-xl">
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
+                <Card className="bg-purple-950/30 border-purple-800/50 rounded-2xl">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg font-medium">{certificate.title}</CardTitle>
+                    <p className="text-sm text-purple-400">{certificate.issuer}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-300 mb-4">{certificate.description}</p>
+                    <div className="text-sm text-gray-400 mb-4">
+                      <p>Issued: {new Date(certificate.issueDate).toLocaleDateString()}</p>
+                      {certificate.expiryDate && (
+                        <p>Expires: {new Date(certificate.expiryDate).toLocaleDateString()}</p>
                       )}
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-blue-600 text-blue-400 hover:bg-blue-900/20 rounded-xl"
-                          onClick={() => setEditingCertificate(certificate)}
-                        >
-                          <Edit className="mr-2 h-4 w-4" /> Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-red-600 text-red-400 hover:bg-red-900/20 rounded-xl"
-                          onClick={() => handleDeleteCertificate(certificate.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </Button>
+                    </div>
+                    {certificate.skills && certificate.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {certificate.skills.map((skill, skillIndex) => (
+                          <Badge key={skillIndex} className="bg-purple-700 rounded-xl">
+                            {skill}
+                          </Badge>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-blue-600 text-blue-400 hover:bg-blue-900/20 rounded-xl"
+                        onClick={() => setEditingCertificate(certificate)}
+                      >
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-600 text-red-400 hover:bg-red-900/20 rounded-xl"
+                        onClick={() => handleDeleteCertificate(certificate.id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </motion.div>
